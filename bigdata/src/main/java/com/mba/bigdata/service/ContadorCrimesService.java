@@ -7,9 +7,9 @@ import com.mba.bigdata.entity.ArquivoCrime;
 
 
 public interface ContadorCrimesService {
-	
-//    public Map<String, Long> getCount(List<String> wordList);
     
     public Collection<ArquivoCrime> getByMunicipio(String municipio);
+	
+    public Collection<ArquivoCrime> getByAnoMaxHomDoloso(Integer ano);
     
 }
