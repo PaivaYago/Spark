@@ -75,5 +75,52 @@ public class ContadorCrimesServiceImpl implements ContadorCrimesService {
 		
 		return null;
 	}
+	
+	public Collection<ArquivoCrime> getByAnoMaxHomDoloso(Integer ano) {
+		
+		try {
+			
+			
+			Dataset<Row> dataset = sparkConfig.sparkSession().read().csv
+					(ArquivoCrime.class.getResource("BaseMunicipioMensal.csv").toString().replaceAll("%20", " "));
+			
+			JavaRDD<ArquivoCrime> crime =  dataset 
+					.javaRDD().map(line -> {
+						ArquivoCrime arq = new ArquivoCrime(line.getInt(0), line.getString(1), line.getInt(2), line.getInt(3), line.getString(4),
+								line.getString(5), line.getInt(6), line.getInt(7), line.getInt(8));					
+						return arq;
+					});
+			
+			Dataset<Row> indCrime = sparkConfig.sparkSession().createDataFrame(crime, ArquivoCrime.class);
+			indCrime.createOrReplaceTempView("crimes");
+			
+			Dataset<Row> dataSetRows = sparkConfig.sparkSession().sql("SELECT fmun AS municipio, mes AS mes, "
+					+ "vano AS ano, regiao AS regiao, hom_doloso AS homicidio_doloso,"
+					+ "FROM crimes WHERE vano = '" + ano + 
+				        + " AND hom_doloso = (SELECT MAX(hom_doloso) from crimes)");
+			List<Row> rows = dataSetRows.collectAsList();
+			
+			Collection<ArquivoCrime> crimes = new ArrayList<ArquivoCrime>();
+			
+			for(Row row : rows) {
+				
+				ArquivoCrime arqCrim = new ArquivoCrime();
+				arqCrim.setFmun(row.getAs("municipio"));
+				arqCrim.setMes(row.getAs("mes"));
+				arqCrim.setVano(row.getAs("ano"));
+				arqCrim.setRegiao(row.getAs("regiao"));
+				arqCrim.setHom_doloso(row.getAs("homicidio_doloso"));
+				
+				crimes.add(arqCrim);
+			}
+			
+			return crimes;
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 
 }
