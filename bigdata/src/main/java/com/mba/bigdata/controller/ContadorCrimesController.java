@@ -19,18 +19,17 @@ public class ContadorCrimesController {
 	@Autowired
 	private ContadorCrimesService service;
 
-//	@RequestMapping(value="wordCount", method = RequestMethod.GET)
-//    public Map<String, Long> count(@RequestParam("words") String words) {
-//		
-//        List<String> wordList = Arrays.asList(words.split("\\|"));
-//        return service.getCount(wordList);
-//        
-//    }
-
 	@RequestMapping(value = "byMunicipio", method = RequestMethod.GET)
 	public Collection<ArquivoCrime> byMunicipio(@RequestParam("municipio") String municipio) {
 
 		return service.getByMunicipio(municipio);
+
+	}
+	
+	@RequestMapping(value = "byAnoMaxHomDoloso", method = RequestMethod.GET)
+	public Collection<ArquivoCrime> byAnoMaxHomDoloso(@RequestParam("ano") Integer ano) {
+
+		return service.getByAnoMaxHomDoloso(ano);
 
 	}
 
